@@ -24,7 +24,7 @@ class Player(pygame.sprite.Sprite):  # 玩家类
         self.facingDir = 1
         #jump info
         self.gravity = 3
-        self.jumpForce = 30
+        self.jumpForce = 35
         
         #animation info
         self.animTimer = 0
@@ -59,7 +59,7 @@ class Player(pygame.sprite.Sprite):  # 玩家类
             self.currentAnim = self.idleAnim
 
     def Detect(self, scene):
-        groundCheck = pygame.Rect(self.rect.left, self.rect.bottom + self.groundCheckDis, PlayerSettings.width, self.groundCheckDis)
+        groundCheck = pygame.Rect(self.rect.left, self.rect.bottom, PlayerSettings.width, self.groundCheckDis)
         headCheck = pygame.Rect(self.rect.left, self.rect.top, PlayerSettings.width, self.headCheckDis)
         self.isGrounded = False
         self.headCollide = False
@@ -70,8 +70,8 @@ class Player(pygame.sprite.Sprite):  # 玩家类
     def PositionFix(self, scene, moveY):
         if not self.isGrounded and not moveY and self.velocity_y > 0:
             while not self.isGrounded:
-                self.rect = self.rect.move(0, 2)
-                groundCheck = pygame.Rect(self.rect.left, self.rect.bottom + self.groundCheckDis, PlayerSettings.width, self.groundCheckDis)
+                self.rect = self.rect.move(0, 1)
+                groundCheck = pygame.Rect(self.rect.left, self.rect.bottom, PlayerSettings.width, self.groundCheckDis)
                 for obstacle in scene.obstacles:
                     if obstacle.rect.colliderect(groundCheck):
                         self.isGrounded = True
@@ -79,12 +79,14 @@ class Player(pygame.sprite.Sprite):  # 玩家类
         
         if not self.headCollide and not moveY and self.velocity_y < 0:
             while not self.headCollide:
-                self.rect = self.rect.move(0, -2)
-                headCheck = pygame.Rect(self.rect.left, self.rect.top, PlayerSettings.width, self.headCheckDis)
+                self.rect = self.rect.move(0, -1)
+                headCheck = pygame.Rect(self.rect.left - 1, self.rect.top + self.headCheckDis, PlayerSettings.width + 2, self.headCheckDis)
                 for obstacle in scene.obstacles:
                     if obstacle.rect.colliderect(headCheck):
                         self.headCollide = True
+                        self.rect.y = obstacle.rect.bottom
                         break
+                print(headCheck, self.headCollide)
 
     def update(self, keys, scene):
         #Detect:
@@ -117,7 +119,6 @@ class Player(pygame.sprite.Sprite):  # 玩家类
         self.velocity_y = min( self.velocity_y + self.gravity, self.jumpForce )
 
         if self.isGrounded: self.velocity_y = 0
-        if self.headCollide: self.velocity_y = 1
 
         #Move    
         moveX = moveY = True

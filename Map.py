@@ -1,5 +1,6 @@
 import pygame
 from Settings import *
+from platforme import level
 from random import randint
 
 # generating maps in every scene
@@ -41,10 +42,16 @@ def scene_obstacles():
     
     for i in range(WindowSettings.width // 40 + 1, 2 * WindowSettings.width // 40 + 1):
         obstacles.append(Block(image_wall, SceneSettings.tileWidth * i, 640))
-    return obstacles
-    '''
-    for i in range(self.map_range[1] // 40 + 1, 2 * self.map_range[1] // 40 + 1):
-        self.floors.append(Floor(pygame.Rect(i*40, 640, 40, 40)))
+    
 
-    for i in range(self.map_range[1] // 40 + 1):
-        self.floors.append(Floor(pygame.Rect(0, i*40, 40, 40)))'''
+    for i in range(2 * WindowSettings.height // 40 + 1):
+        obstacles.append(Block(image_wall, 1640, SceneSettings.tileWidth * i))
+    return obstacles
+
+def level_obstacles():
+    image_wall = pygame.transform.scale( pygame.image.load(r".\assets_library\tiles\12.jpg"), (40, 40) )
+    obstacles = []
+
+    for cord in level.Walls:
+        obstacles.append(Block(image_wall, cord[0] * 40, cord[1] * 40))
+    return obstacles

@@ -11,14 +11,17 @@ class WindowSettings:
 
 class GameState(Enum):
     MAIN_MENU = 1
-    GAME_PLAY_ORIGIN =2
-    END_GAME = 3
+    GAME_PLAY_ORIGIN = 2
+    GAME_PLAY_LEVEL = 3
+    END_GAME = 4
 
 class SceneSettings:
     tileWidth = tileHeight = 40
 
-    scene_tileXnum = 64
-    scene_tileYnum = 36
+    scene_tileXnum = 100
+    scene_tileYnum = 100
+    sceneWidth = scene_tileXnum * tileWidth
+    sceneHeight = scene_tileYnum * tileHeight
 
 class DialogSettings:
     boxWidth = 800

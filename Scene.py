@@ -28,6 +28,10 @@ class Scene:
                 for j in range(SceneSettings.scene_tileYnum):
                     self.window.blit(self.map[i][j], (SceneSettings.tileWidth * i - self.cameraX, SceneSettings.tileHeight * j - self.cameraY))
         
+        if self.state == GameState.GAME_PLAY_LEVEL:
+            for i in range(SceneSettings.scene_tileXnum):
+                for j in range(SceneSettings.scene_tileYnum):
+                    self.window.blit(self.map[i][j], (SceneSettings.tileWidth * i - self.cameraX, SceneSettings.tileHeight * j - self.cameraY))
 
         self.check_draw(self.background)
         self.check_draw(self.obstacles)
@@ -67,6 +71,12 @@ class OriginScene(Scene):
         self.map = Map.scene_map()
         self.obstacles = Map.scene_obstacles()
 
+class LevelScene(Scene):
+    def __init__(self, window, Initial_X, Initial_Y):
+        super().__init__(window, Initial_X, Initial_Y)
+        self.state = GameState.GAME_PLAY_LEVEL
+        self.map = Map.scene_map()
+        self.obstacles = Map.level_obstacles()
 
 class EndGameScene(Scene):
     def __init__(self, window, Initial_X, Initial_Y):
