@@ -63,31 +63,35 @@ class Player(pygame.sprite.Sprite):  # 玩家类
         headCheck = pygame.Rect(self.rect.left, self.rect.top, PlayerSettings.width, self.headCheckDis)
         self.isGrounded = False
         self.headCollide = False
+        #检测与墙体
         for obstacle in scene.obstacles:
             if obstacle.rect.colliderect(groundCheck): self.isGrounded = True
             if obstacle.rect.colliderect(headCheck): self.headCollide = True
+        #检测与移动平台
+        for machine in scene.machines:
+            #踩到平台上，平台开始移动
+            if machine.rect.colliderect(groundCheck):
+                self.isGrounded = True
+                machine.Work(self)
+            if machine.rect.colliderect(headCheck): self.headCollide = True
 
-    def PositionFix(self, scene, moveY):
+
+    def PositionFix(self, scene, moveY, yRect):
         if not self.isGrounded and not moveY and self.velocity_y > 0:
             while not self.isGrounded:
                 self.rect = self.rect.move(0, 1)
-                groundCheck = pygame.Rect(self.rect.left, self.rect.bottom, PlayerSettings.width, self.groundCheckDis)
+                groundCheck = pygame.Rect(self.rect.left - 5, self.rect.bottom, PlayerSettings.width + 10, self.groundCheckDis)
                 for obstacle in scene.obstacles:
                     if obstacle.rect.colliderect(groundCheck):
                         self.isGrounded = True
                         break
         
         if not self.headCollide and not moveY and self.velocity_y < 0:
-            while not self.headCollide:
-                self.rect = self.rect.move(0, -1)
-                headCheck = pygame.Rect(self.rect.left - 1, self.rect.top + self.headCheckDis, PlayerSettings.width + 2, self.headCheckDis)
-                for obstacle in scene.obstacles:
-                    if obstacle.rect.colliderect(headCheck):
-                        self.headCollide = True
-                        self.rect.y = obstacle.rect.bottom
-                        break
-                print(headCheck, self.headCollide)
-
+            for obstacle in scene.obstacles:
+                if obstacle.rect.colliderect(yRect):
+                    self.rect.top = obstacle.rect.bottom
+                    break
+    
     def update(self, keys, scene):
         #Detect:
         self.Detect(scene)
@@ -125,14 +129,21 @@ class Player(pygame.sprite.Sprite):  # 玩家类
         xRect = self.rect.move(self.velocity_x, 0)
         yRect = self.rect.move(0, self.velocity_y)
         
+
+        #普通墙体的互动
         for obstacle in scene.obstacles:
             if obstacle.rect.colliderect(xRect): moveX = False
             if obstacle.rect.colliderect(yRect): moveY = False
+        #移动平台的互动
+        for machine in scene.machines:
+            if machine.rect.colliderect(xRect): moveX = False
+            if machine.rect.colliderect(yRect): moveY = False
+
 
         if moveX: self.rect = self.rect.move(self.velocity_x, 0)
         if moveY: self.rect = self.rect.move(0, self.velocity_y)
-        
-        self.PositionFix(scene, moveY)
+
+        self.PositionFix(scene, moveY, yRect)
         
 
     def Reset(self):

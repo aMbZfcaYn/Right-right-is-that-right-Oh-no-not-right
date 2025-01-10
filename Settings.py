@@ -13,7 +13,7 @@ class GameState(Enum):
     MAIN_MENU = 1
     GAME_PLAY_ORIGIN = 2
     GAME_PLAY_LEVEL = 3
-    END_GAME = 4
+    GAME_PLAY_PAUSE = 4
 
 class SceneSettings:
     tileWidth = tileHeight = 40

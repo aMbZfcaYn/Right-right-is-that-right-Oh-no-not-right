@@ -9,6 +9,7 @@ from Settings import *
 class Gamemanager():
     def __init__(self, window):
         self.window = window
+        self.ui = Scene.GamingUI(window, 0, 0)
         self.scene = Scene.MainMenuScene(window, 0, 0)
         self.state = GameState.MAIN_MENU
         self.clock = pygame.time.Clock()
@@ -49,31 +50,31 @@ class Gamemanager():
                     self.flush_scene(GameState.GAME_PLAY_LEVEL, player, 400, 120)
                 
                 if event.key == pygame.K_ESCAPE and self.state == GameState.GAME_PLAY_ORIGIN:
-                    pygame.event.post(pygame.event.Event(pygame.QUIT))
+                    self.flush_scene(GameState.GAME_PLAY_PAUSE, player, 0, 0)
+
+                if event.key == pygame.K_ESCAPE and self.state == GameState.GAME_PLAY_LEVEL:
+                    self.flush_scene(GameState.GAME_PLAY_PAUSE, player, 0, 0)
                 
                 if event.key == pygame.K_ESCAPE and self.state == GameState.MAIN_MENU:
                     pygame.event.post(pygame.event.Event(pygame.QUIT))
-                
-                if event.key == pygame.K_RETURN and self.state == GameState.END_GAME:
-                    pygame.event.post(pygame.event.Event(pygame.QUIT))
 
-                if event.key == pygame.K_ESCAPE and self.state == GameState.GAME_PLAY_LEVEL:
-                    pygame.event.post(pygame.event.Event(pygame.QUIT))
+                if event.key == pygame.K_c and self.state == GameState.GAME_PLAY_PAUSE:
+                    self.flush_scene(self.scene.preScene, player, self.scene.playerX, self.scene.playerY)
             
     def flush_scene(self, GOTO:GameState, player:Player.Player, Initial_X, Initial_Y):  # switch scene
-        if GOTO == GameState.GAME_PLAY_ORIGIN:
-            self.scene = Scene.OriginScene(self.window, Initial_X, Initial_Y)
+        if GOTO == GameState.GAME_PLAY_PAUSE:
+            self.scene = Scene.PauseMenuScene(self.window, Initial_X, Initial_Y, player.rect.left, player.rect.top, self.state)
         else:
-            if GOTO == GameState.END_GAME:
-                self.scene = Scene.EndGameScene(self.window, Initial_X, Initial_Y)
             if GOTO == GameState.GAME_PLAY_LEVEL:
                 self.scene = Scene.LevelScene(self.window, Initial_X, Initial_Y)
-                player.rect.topleft = ( Initial_X, Initial_Y )
+            if GOTO == GameState.GAME_PLAY_ORIGIN:
+                self.scene = Scene.OriginScene(self.window, Initial_X, Initial_Y)
+            player.rect.topleft = ( Initial_X, Initial_Y )
         player.colliSys = Attributes.Collidable(self.scene)
         self.state = GOTO
 
     def update_camera(self, player:Player.Player):
-        playerCenter = ( player.rect.center )  # 获取玩家当前的位置，使用center是因为玩家有60*60的大小，要获取中间位置
+        playerCenter = ( player.rect.center )  # 获取玩家当前的位置
 
         self.scene.cameraX = playerCenter[0] - WindowSettings.width // 2
         self.scene.cameraY = playerCenter[1] - WindowSettings.height // 2
@@ -85,7 +86,12 @@ class Gamemanager():
         self.scene.cameraY = min(self.scene.cameraY, SceneSettings.sceneHeight)
 
     def update(self, player:Player.Player):
-        self.update_camera(player)
+        if self.state != GameState.GAME_PLAY_PAUSE:
+            self.update_camera(player)
+            for machine in self.scene.machines:
+                machine.update()
 
     def render(self):
-        self.scene.render() 
+        self.scene.render()
+        if self.state == GameState.GAME_PLAY_LEVEL or self.state == GameState.GAME_PLAY_ORIGIN:
+            self.ui.render()
