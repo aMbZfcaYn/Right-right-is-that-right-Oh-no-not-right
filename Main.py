@@ -13,8 +13,9 @@ def run():
 
     player = Player()
     manager = Gamemanager(window, player)
-
+    
     while True:
+        #print(player.rect)
         manager.tick(30)            # tick setting
         manager.event_queue(player) # process event queue
         keys = pygame.key.get_pressed()

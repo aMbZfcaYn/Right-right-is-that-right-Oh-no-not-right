@@ -12,6 +12,7 @@ class Scene:
         self.obstacles = []
         self.traps = []
         self.coins = []
+        self.enemies = []
         self.background = None
 
         self.window = window
@@ -40,7 +41,12 @@ class Scene:
                 for j in range(SceneSettings.scene_tileYnum):
                     self.window.blit(self.map[i][j], (SceneSettings.tileWidth * i - self.cameraX, SceneSettings.tileHeight * j - self.cameraY))
         
-        if self.state == GameState.GAME_PLAY_LEVEL:
+        if self.state == GameState.GAME_PLAY_LEVEL_1:
+            for i in range(SceneSettings.scene_tileXnum):
+                for j in range(SceneSettings.scene_tileYnum):
+                    self.window.blit(self.map[i][j], (SceneSettings.tileWidth * i - self.cameraX, SceneSettings.tileHeight * j - self.cameraY))
+        
+        if self.state == GameState.GAME_PLAY_LEVEL_2:
             for i in range(SceneSettings.scene_tileXnum):
                 for j in range(SceneSettings.scene_tileYnum):
                     self.window.blit(self.map[i][j], (SceneSettings.tileWidth * i - self.cameraX, SceneSettings.tileHeight * j - self.cameraY))
@@ -49,12 +55,12 @@ class Scene:
         self.Check_Draw(self.obstacles)
         self.Check_Draw(self.machines)
         self.Check_Draw(self.traps)
+        self.Check_Draw(self.enemies)
         self.Draw_Coin(player)
     
     def CAMERA_spawn(self, x, y):
         self.cameraX = x
         self.cameraY = y
-
 
 class MainMenuScene(Scene):
     def __init__(self, window, Initial_X, Initial_Y):
@@ -160,18 +166,32 @@ class OriginScene(Scene):
         self.walls = Map.scene_walls()
         self.machines = Map.scene_machines()
         self.coins = Map.scene_coins()
+        self.enemies = Map.scene_enemies()
 
         self.obstacles = self.walls + self.machines
 
-class LevelScene(Scene):
+class Level_1_Scene(Scene):
     def __init__(self, window, Initial_X, Initial_Y):
         super().__init__(window, Initial_X, Initial_Y)
         self.name = "Level_1"
-        self.state = GameState.GAME_PLAY_LEVEL
+        self.state = GameState.GAME_PLAY_LEVEL_1
         self.map = Map.scene_map()
-        self.walls = Map.level_walls()
-        self.machines = Map.level_machines()
-        self.traps = Map.level_traps()
+        self.walls = Map.level_1_walls()
+        self.machines = Map.level_1_machines()
+        self.traps = Map.level_1_traps()
+
+        self.obstacles = self.walls + self.machines
+
+class Level_2_Scene(Scene):
+    def __init__(self, window, Initial_X, Initial_Y):
+        super().__init__(window, Initial_X, Initial_Y)
+        self.name = "Level_2"
+        self.state = GameState.GAME_PLAY_LEVEL_2
+        self.map = Map.scene_map()
+        self.walls = Map.level_2_walls()
+        self.machines = Map.level_2_machines()
+        self.traps = Map.level_2_traps()
+        self.enemies = Map.level_2_enemies()
 
         self.obstacles = self.walls + self.machines
 

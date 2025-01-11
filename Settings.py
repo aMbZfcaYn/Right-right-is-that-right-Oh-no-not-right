@@ -6,6 +6,10 @@ class PlayerSettings:
     height = 54
     animationTime = 6
 
+class NPCSettings:
+    width = 60
+    height = 60
+
 class WindowSettings:
     width = 1000
     height = 800
@@ -13,9 +17,10 @@ class WindowSettings:
 class GameState(Enum):
     MAIN_MENU = 1
     GAME_PLAY_ORIGIN = 2
-    GAME_PLAY_LEVEL = 3
-    GAME_PLAY_PAUSE = 4
-    GAME_PLAY_DEAD = 5
+    GAME_PLAY_LEVEL_1 = 3
+    GAME_PLAY_LEVEL_2 = 4
+    GAME_PLAY_PAUSE = 5
+    GAME_PLAY_DEAD = 6
 
 class SceneSettings:
     tileWidth = tileHeight = 40
@@ -48,14 +53,18 @@ class PosSettings:
     originX = 0
     originY = 0
 
-    levelX = 400
-    levelY = 120
+    level_1_X = 400
+    level_1_Y = 120
+
+    level_2_X = 80
+    level_2_Y = 400
 
 class Images:
     wall = pygame.transform.scale( pygame.image.load(r".\assets_library\tiles\12.jpg"), (40, 40) )
     machine = pygame.transform.scale( pygame.image.load(r".\assets_library\tiles\Machine.jpg"), (40, 40) )
     trap = pygame.transform.scale( pygame.image.load(r".\assets_library\Trap.png"), (40, 25) )
     coin = [pygame.transform.scale( pygame.image.load(rf".\assets_library\Coins\Gold-{i}.png") , (40, 40) ) for i in range(1,5)]
+    enemy = [pygame.transform.scale( pygame.image.load(rf".\assets_library\Enemy\Enemy-{i}.png") , (40, 40) ) for i in range(1,5)]
 
 class GameEvent:
     EVENT_PLAYER_DEAD = pygame.USEREVENT + 1
