@@ -1,24 +1,18 @@
 import pygame
 from Settings import *
-from platforme import level
+from LevelMap import level
 from random import randint
 
-# generating maps in every scene
+# 静态场景：Block
 class Block(pygame.sprite.Sprite):
     def __init__(self, image, x, y):
         super().__init__()
-        self.image = pygame.transform.scale(image, (SceneSettings.tileWidth, SceneSettings.tileHeight))
+        self.image = image
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
 
-        self.lastCameraX = 0
-        self.lastCameraY = 0
-
-    '''def update(self, cameraX, cameraY, player):
-        self.rect.x -= (cameraX - self.lastCameraX)
-        self.rect.y -= (cameraY - self.lastCameraY)
-        self.lastCameraX = cameraX
-        self.lastCameraY = cameraY'''
+        '''self.lastCameraX = 0
+        self.lastCameraY = 0'''
 
 class Machine(Block):
     def __init__(self, image, x, y, dis):
@@ -31,7 +25,7 @@ class Machine(Block):
         self.stayTime = 3
         self.stayTick = 30 * self.stayTime
         
-    def update(self):
+    def update(self, player):
         if self.moveDis == self.tarDis:
             self.on = False
             self.stayTick -= 1
@@ -44,13 +38,49 @@ class Machine(Block):
             self.stayTick = 30 * self.stayTime
         if self.on:
             self.rect = self.rect.move(0, -self.velocity)
+            if self.rect.colliderect(player.rect): player.rect = player.rect.move(0, -self.velocity)
             self.moveDis += self.velocity
 
     
     def Work(self, player):
-        if self.moveDis != self.tarDis:
-            self.on = True
-            player.rect = player.rect.move(0, -self.velocity)
+        if self.moveDis == 0: self.on = True
+
+class Trap(Block):
+    def __init__(self, image, x, y):
+        super().__init__(image, x, y)
+
+#有动画的场景：Anim
+class Anim(pygame.sprite.Sprite):
+    def __init__(self, images:list, x, y):
+        self.images = images
+        self.animTimer = 0
+        self.animIndex = 0
+        self.image = images[0]
+        self.rect = self.image.get_rect()
+        self.cord = (x, y)
+        self.animationTime = 6
+
+    def update(self):
+        self.image = self.images[self.animIndex]
+        self.rect.topleft = self.cord
+        self.animTimer += 1
+        if self.animTimer >= self.animationTime:
+            self.animIndex += 1
+            self.animTimer = 0
+        if self.animIndex >= len(self.images): self.Reset()
+
+    def Reset(self):
+        self.animIndex = 0
+        self.animTimer = 0
+
+class Coin(Anim):
+    def __init__(self, image, x, y, value):
+        super().__init__(image, x, y)
+        self.value = value
+        self.isGot = False
+
+    def update(self):
+        super().update()
 
 
 def scene_map():
@@ -67,41 +97,51 @@ def scene_map():
     return mapObj
 
 def scene_walls():
-    image_wall = pygame.transform.scale( pygame.image.load(r".\assets_library\tiles\12.jpg"), (40, 40) )
-
     obstacles = []
 
     for i in range(2 * WindowSettings.width // 40 + 1):
-        obstacles.append(Block(image_wall, SceneSettings.tileWidth * i, 760))
+        obstacles.append(Block(Images.wall, SceneSettings.tileWidth * i, 760))
     
     for i in range(WindowSettings.width // 40 + 1, 2 * WindowSettings.width // 40 + 1):
-        obstacles.append(Block(image_wall, SceneSettings.tileWidth * i, 640))
+        obstacles.append(Block(Images.wall, SceneSettings.tileWidth * i, 640))
     
-
     for i in range(2 * WindowSettings.height // 40 + 1):
-        obstacles.append(Block(image_wall, 1640, SceneSettings.tileWidth * i))
+        obstacles.append(Block(Images.wall, 1640, SceneSettings.tileWidth * i))
+
     return obstacles
 
 def scene_machines():
-    image_machine = pygame.transform.scale( pygame.image.load(r".\assets_library\tiles\Machine.jpg"), (40, 40) )
-
     machines = []
 
-    machines.append(Machine(image_machine, 400, 720, 400))
+    machines.append(Machine(Images.machine, 400, 720, 400))
+
     return machines
 
+def scene_coins():
+    coins = []
+    coinsGot = []
+
+    coins.append(Coin(Images.coin, 1000, 720, 20))
+    coinsGot.append(True)
+
+    return coins
+
+def level_traps():
+    traps = []
+
+    for cord in level.Traps:
+        traps.append(Trap(Images.trap, cord[0] * 40, cord[1] * 40))
+    return traps
+
 def level_walls():
-    image_wall = pygame.transform.scale( pygame.image.load(r".\assets_library\tiles\12.jpg"), (40, 40) )
     walls = []
 
     for cord in level.Walls:
-        walls.append(Block(image_wall, cord[0] * 40, cord[1] * 40))
+        walls.append(Block(Images.wall, cord[0] * 40, cord[1] * 40))
     return walls
 
 def level_machines():
-    image_machine = pygame.transform.scale( pygame.image.load(r".\assets_library\tiles\Machine.jpg"), (40, 40) )
-
     machines = []
 
-    machines.append(Machine(image_machine, 1600, 400, 240))
+    machines.append(Machine(Images.machine, 1600, 400, 240))
     return machines

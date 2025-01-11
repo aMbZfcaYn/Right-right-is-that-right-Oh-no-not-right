@@ -24,8 +24,7 @@ class Player(pygame.sprite.Sprite):  # 玩家类
         self.facingDir = 1
         #jump info
         self.gravity = 3
-        self.jumpForce = 35
-        
+        self.jumpForce = 30
         #animation info
         self.animTimer = 0
         self.animIndex = 0
@@ -34,6 +33,15 @@ class Player(pygame.sprite.Sprite):  # 玩家类
         self.moveAnim = [pygame.transform.scale( pygame.image.load(rf".\assets_library\PlayerBasic\PlayerMove-{i}.png") , (PlayerSettings.width, PlayerSettings.height) ) for i in range(1,5)]
         self.jumpAnim = [pygame.transform.scale( pygame.image.load(rf".\assets_library\PlayerBasic\PlayerJump.png") , (PlayerSettings.width, PlayerSettings.height) )]
         self.fallAnim = [pygame.transform.scale( pygame.image.load(rf".\assets_library\PlayerBasic\PlayerFall.png") , (PlayerSettings.width, PlayerSettings.height) )]
+        #dead info
+        self.isDead = False
+        #shop info
+        self.coins = 0
+        self.coinsGet = { 
+            "Origin": [False for i in range(CoinNum.Origin)], 
+            "Level_1": [False for i in range(CoinNum.Level_1)] 
+            }
+
 
     def StateControl(self):
         if self.velocity_y != 0 :
@@ -74,17 +82,29 @@ class Player(pygame.sprite.Sprite):  # 玩家类
                 self.isGrounded = True
                 machine.Work(self)
             if machine.rect.colliderect(headCheck): self.headCollide = True
-
+        #检测与陷阱
+        for trap in scene.traps:
+            if trap.rect.colliderect(self.rect) and not self.isDead:
+                self.isDead = True
+                pygame.event.post(pygame.event.Event(GameEvent.EVENT_PLAYER_DEAD))
+                break
+        #检测与金币
+        for i in range( len( scene.coins ) ):
+            coin = scene.coins[i]
+            if coin.rect.colliderect(self.rect) and not self.coinsGet[scene.name][i] :
+                self.coins += coin.value
+                self.coinsGet[scene.name][i] = True
+                break 
 
     def PositionFix(self, scene, moveY, yRect):
         if not self.isGrounded and not moveY and self.velocity_y > 0:
-            while not self.isGrounded:
+            '''while not self.isGrounded:
                 self.rect = self.rect.move(0, 1)
-                groundCheck = pygame.Rect(self.rect.left - 5, self.rect.bottom, PlayerSettings.width + 10, self.groundCheckDis)
-                for obstacle in scene.obstacles:
-                    if obstacle.rect.colliderect(groundCheck):
-                        self.isGrounded = True
-                        break
+                groundCheck = pygame.Rect(self.rect.left - 5, self.rect.bottom, PlayerSettings.width + 10, self.groundCheckDis)'''
+            for obstacle in scene.obstacles:
+                if obstacle.rect.colliderect(yRect):
+                    self.rect.bottom = obstacle.rect.top
+                    break
         
         if not self.headCollide and not moveY and self.velocity_y < 0:
             for obstacle in scene.obstacles:
@@ -145,7 +165,6 @@ class Player(pygame.sprite.Sprite):  # 玩家类
 
         self.PositionFix(scene, moveY, yRect)
         
-
     def Reset(self):
         self.animIndex = 0
         self.animTimer = 0 

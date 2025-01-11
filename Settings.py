@@ -1,3 +1,4 @@
+import pygame
 from enum import Enum
 
 class PlayerSettings:
@@ -14,6 +15,7 @@ class GameState(Enum):
     GAME_PLAY_ORIGIN = 2
     GAME_PLAY_LEVEL = 3
     GAME_PLAY_PAUSE = 4
+    GAME_PLAY_DEAD = 5
 
 class SceneSettings:
     tileWidth = tileHeight = 40
@@ -41,3 +43,24 @@ class DialogSettings:
     npcCoordY = WindowSettings.height * 2 // 3 - 20
 
     flashCD = 15
+
+class PosSettings:
+    originX = 0
+    originY = 0
+
+    levelX = 400
+    levelY = 120
+
+class Images:
+    wall = pygame.transform.scale( pygame.image.load(r".\assets_library\tiles\12.jpg"), (40, 40) )
+    machine = pygame.transform.scale( pygame.image.load(r".\assets_library\tiles\Machine.jpg"), (40, 40) )
+    trap = pygame.transform.scale( pygame.image.load(r".\assets_library\Trap.png"), (40, 25) )
+    coin = [pygame.transform.scale( pygame.image.load(rf".\assets_library\Coins\Gold-{i}.png") , (40, 40) ) for i in range(1,5)]
+
+class GameEvent:
+    EVENT_PLAYER_DEAD = pygame.USEREVENT + 1
+
+
+class CoinNum:
+    Origin = 2
+    Level_1 = 3
