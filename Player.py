@@ -9,9 +9,6 @@ class Player(pygame.sprite.Sprite):  # 玩家类
         self.image = pygame.transform.scale( pygame.image.load(r".\assets_library\PlayerBasic\PlayerIdle.png") , (PlayerSettings.width, PlayerSettings.height) )
         self.rect = self.image.get_rect()
         self.rect.topleft = (0, 0)
-        #states
-        self.states = ["Idle", "Move", "Jump", "Fall"]
-        self.state = "Idle"
         #collision info
         self.groundCheckDis = 1
         self.isGrounded = False
@@ -26,6 +23,9 @@ class Player(pygame.sprite.Sprite):  # 玩家类
         #jump info
         self.gravity = 3
         self.jumpForce = 30
+        #states
+        self.states = ["Idle", "Move", "Jump", "Fall"]
+        self.state = "Idle"
         #animation info
         self.animTimer = 0
         self.animIndex = 0
