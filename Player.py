@@ -1,5 +1,6 @@
 import pygame
 from Settings import *
+from Map import Bullet
 
 class Player(pygame.sprite.Sprite):  # 玩家类
     def __init__(self):
@@ -8,7 +9,7 @@ class Player(pygame.sprite.Sprite):  # 玩家类
         self.image = pygame.transform.scale( pygame.image.load(r".\assets_library\PlayerBasic\PlayerIdle.png") , (PlayerSettings.width, PlayerSettings.height) )
         self.rect = self.image.get_rect()
         self.rect.topleft = (0, 0)
-        # states
+        #states
         self.states = ["Idle", "Move", "Jump", "Fall"]
         self.state = "Idle"
         #collision info
@@ -39,9 +40,13 @@ class Player(pygame.sprite.Sprite):  # 玩家类
         self.coins = 0
         self.coinsGet = { 
             "Origin": [False for i in range(CoinNum.Origin)], 
-            "Level_1": [False for i in range(CoinNum.Level_1)] 
+            "Level_1": [False for i in range(CoinNum.Level_1)],
+            "Level_2": [False for i in range(CoinNum.Level_2)] 
             }
-
+        #shoot ability
+        self.canShoot = False
+        self.shootCD = 0.5 * 30
+        self.shootTimer = 0
 
     def StateControl(self):
         if self.velocity_y != 0 :
@@ -106,7 +111,10 @@ class Player(pygame.sprite.Sprite):  # 玩家类
                 self.isDead = True
                 pygame.event.post(pygame.event.Event(GameEvent.EVENT_PLAYER_DEAD))
                 break
-
+        #检测与NPC商人
+        for npc in scene.npcs:
+            if npc.rect.colliderect(self.rect): npc.awake = True
+            else: npc.awake = False
 
     def PositionFix(self, scene, moveY, yRect):
         if not self.isGrounded and not moveY and self.velocity_y > 0:
@@ -122,9 +130,10 @@ class Player(pygame.sprite.Sprite):  # 玩家类
                     break
     
     def update(self, keys, scene):
+        #Shoot:
+        self.shootTimer -= 1
         #Detect:
         self.Detect(scene)
-
         #Animation:
         self.StateControl()
         self.image = self.currentAnim[ self.animIndex ]
@@ -137,6 +146,12 @@ class Player(pygame.sprite.Sprite):  # 玩家类
         if self.animIndex >= len(self.currentAnim): self.Reset()
 
         #Input + VelocitySet
+        if  keys[pygame.K_f]and self.canShoot and self.shootTimer < 0 :
+            self.shootTimer = self.shootCD
+            if self.facingRight:
+                scene.bullets.append(Bullet(Images.bullet, self.rect.centerx, self.rect.centery - 10, self.facingDir))
+            else:
+                scene.bullets.append(Bullet(Images.bullet, self.rect.centerx - 40, self.rect.centery - 10, self.facingDir))
         if keys[pygame.K_SPACE] and self.isGrounded:  # Jump key
             self.velocity_y = -self.jumpForce  # Jump strength
             self.isGrounded = False

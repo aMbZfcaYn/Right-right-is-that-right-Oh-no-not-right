@@ -13,13 +13,16 @@ def run():
 
     player = Player()
     manager = Gamemanager(window, player)
-    
+
     while True:
-        #print(player.rect)
-        manager.tick(30)            # tick setting
-        manager.event_queue(player) # process event queue
+        manager.tick(30)
+        #shop和victory两个场景需要调用pygame事件队列来渲染
+        if manager.state != GameState.VICTORY and manager.state != GameState.GAME_PLAY_SHOP:
+            manager.event_queue(player)
+        if manager.state == GameState.GAME_PLAY_SHOP and manager.scene.quit:
+            manager.event_queue(player)
         keys = pygame.key.get_pressed()
-        if manager.state == GameState.MAIN_MENU or manager.state == GameState.GAME_PLAY_PAUSE or manager.state == GameState.GAME_PLAY_DEAD:
+        if manager.state == GameState.MAIN_MENU or manager.state == GameState.GAME_PLAY_PAUSE or manager.state == GameState.GAME_PLAY_DEAD or manager.state == GameState.VICTORY or manager.state == GameState.GAME_PLAY_SHOP:
             manager.render()
         else:
             manager.update(player)
